@@ -2,11 +2,13 @@
 import Logging,re
 from jsonrpclib import Server
 from time import sleep
-route = '0.0.0.0/0'
-interface = 'Loopback100'
+
+route = '0.0.0.0/0' #route to monitor
+interface = 'Loopback100' #interface to monitor(needs to be the full interface name you see in show interface status
+interval = 0.1 #interval in seconds for how frequently to check the status
+
 switch = Server( "unix:/var/run//command-api.sock" )
 positive_checks	= 0
-interval = 0.1
 
 Logging.logD( id="VRRP_ROUTE_TRACK",
               severity=Logging.logCritical,
