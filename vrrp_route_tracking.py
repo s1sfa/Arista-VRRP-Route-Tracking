@@ -3,13 +3,15 @@ import Logging
 from jsonrpclib import Server
 from time import sleep
 
-route = '0.0.0.0/0'		#route that is being tracked, when this route leaves the routing table the specified interface will be shutdown. 
-interface = 'Loopback100'	#interface that is being tracked(needs to be the full name that you see under show interface. Example "show int lo100" first line shows "Loopback100")
-
+#initialization variables
 switch = Server( "unix:/var/run//command-api.sock" )
 positive_checks = 0
 
-###Recovery Settings
+##Variables to configure##
+route = '0.0.0.0/0'		#route that is being tracked, when this route leaves the routing table the specified interface will be shutdown. 
+interface = 'Loopback100'	#interface that is being tracked(needs to be the full name that you see under show interface. Example "show int lo100" first line shows "Loopback100")
+
+###Recovery Interval
 intervals_to_recovery = 0	#how many intervals to wait for the route to be active to no shut the tracked interface, set to 0 to disable
 
 interval = 0.1
