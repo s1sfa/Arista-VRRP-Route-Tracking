@@ -1,14 +1,18 @@
 #!/usr/bin/env python
-import Logging,re
+import Logging
 from jsonrpclib import Server
 from time import sleep
 
-route = '0.0.0.0/0' #route to monitor
-interface = 'Loopback100' #interface to monitor(needs to be the full interface name you see in show interface status
-interval = 0.1 #interval in seconds for how frequently to check the status
+route = '0.0.0.0/0'		#route that is being tracked, when this route leaves the routing table the specified interface will be shutdown. 
+interface = 'Loopback100'	#interface that is being tracked(needs to be the full name that you see under show interface. Example "show int lo100" first line shows "Loopback100")
 
 switch = Server( "unix:/var/run//command-api.sock" )
-positive_checks	= 0
+positive_checks = 0
+
+###Recovery Settings
+intervals_to_recovery = 0	#how many intervals to wait for the route to be active to no shut the tracked interface, set to 0 to disable
+
+interval = 0.1
 
 Logging.logD( id="VRRP_ROUTE_TRACK",
               severity=Logging.logCritical,
@@ -17,7 +21,12 @@ Logging.logD( id="VRRP_ROUTE_TRACK",
               recommendedAction=Logging.NO_ACTION_REQUIRED
 )
 
+recovery_time = intervals_to_recovery*interval
 status = ''
+
+def recover():
+	interface_recover = switch.runCmds(1, ['enable','configure','interface {}'.format(interface),'default shutdown','write memory'])[0]
+	Logging.log(VRRP_ROUTE_TRACK, "Recovery: Tracked route {} has been in the routing table for {} seconds. Interface {} has been activated".format(route,recovery_time,interface))
 
 try:
     while True:
@@ -28,12 +37,14 @@ try:
 		#route exists but interface is still shutdown
                 if status != 'yellow':
                     if status == 'red':
-                        Logging.log(VRRP_ROUTE_TRACK, "Recovery: Route {} was found in routing table, Interface {} is still shutdown".format(route,interface))
+                        Logging.log(VRRP_ROUTE_TRACK, "Recovery: Route {} was found in the routing table, Interface {} is still shutdown".format(route,interface))
                     else:
-                        Logging.log(VRRP_ROUTE_TRACK, "Route {} was found in routing table, Interface {} is shutdown".format(route,interface))
+                        Logging.log(VRRP_ROUTE_TRACK, "Route {} was found in the routing table, Interface {} is shutdown".format(route,interface))
                     status = 'yellow'
        	       	#count positive	checks incase we want todo do some sort	auto recovery timer or notifications
-                positive_checks += 1
+		positive_checks += 1
+		if intervals_to_recovery != 0 and positive_checks > intervals_to_recovery:
+			recover()
             else:
             #Everything is good
                 if status != 'green':
