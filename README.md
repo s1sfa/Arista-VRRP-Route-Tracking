@@ -1,7 +1,13 @@
 # Arista-VRRP-Route-Tracking
-This Arista switch script allows you to track the availability of a route to influence the preference of VRRP. As of this creationg of this script Arista only have vrrp interface tracking. This script suppliments that by tracking the availability of a route in the routing table.
+This Arista switch script allows you to track the availability of a route to influence the preference of VRRP. As of the creation of this script, Arista only has vrrp interface tracking. This script suppliments that by tracking the availability of a route in the routing table.
 
-We have implementted this as checking for the existence of a default route, and then shutting down a vrrp tracked loopback interface to trigger the vrrp failover.
+If you are learning of a default route via a dynamic routing protocol, what happens to your traffic if that routing is down but your uplink interfaces are up on the VRRP master device? You will probably be dropping traffic until problem is fixed or someone intervenes to failover VRRP to the other device. With this script you can track the availability of a route(probably default route) which will trigger the vrrp failover.
+
+####Switch Configuration requirements.
+Configure an interface that vrrp will track, that the script can shutdown. I recommend a loopback interface.
+Configuring the interface track object
+Configure vrrp to track that interface tracking object.
+Configure and run this script on the switch.
 
 ####All of the config is in the initial variable setting of the script:
 ```
@@ -25,4 +31,11 @@ event-handler vrrp-route-tracking
    trigger on-boot
    action bash sudo /mnt/flash/vrrp_route_tracking.py
    delay 120 #if you want it to wait for everything to load on the switch before starting it's checks and shuttinginterfaces(which might not be a bad idea to have some sort of startup delay for vrrp to not get traffic before the devices protocols are all up)
+```
+
+####Auto Recovery
+After x intervals the route has been in the routing table, enable the interface configured for tracking. 0 disables this autorecovery feature.
+
+```
+intervals_to_recovery = 0 #how many intervals to wait for the route to be active to no shut the tracked interface, set to 0 to disable
 ```
