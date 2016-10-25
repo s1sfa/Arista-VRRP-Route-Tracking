@@ -6,7 +6,6 @@ from time import sleep
 #initialization variables
 switch = Server( "unix:/var/run//command-api.sock" )
 positive_checks = 0
-recovery_time = intervals_to_recovery*interval
 status = 'green'
 
 ##Variables to configure##
@@ -16,6 +15,7 @@ interval = 0.1 #interval in seconds for how frequently to check the status
 
 ###Recovery Interval
 intervals_to_recovery = 300    #how many intervals to wait for the route to be active to no shut the tracked interface, set to 0 to disable
+recovery_time = intervals_to_recovery*interval
 
 Logging.logD( id="VRRP_ROUTE_TRACK",
               severity=Logging.logCritical,
