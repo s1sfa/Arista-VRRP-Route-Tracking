@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import Logging,sys,os.path,socket
 from jsonrpclib import Server
+from jsonrpclib import history
 from time import sleep
 
 #initialization variables
@@ -29,7 +30,7 @@ def socket_recovery():
         sleep(interval)
         if os.path.exists('/var/run/command-api.sock'):
                 Logging.log(VRRP_ROUTE_TRACK, "Socket has recovered to recover from socket error")
-        return Server( "unix:/var/run//command-api.sock" )
+                return Server( "unix:/var/run//command-api.sock" )
 
 def recover():
     interface_recover = switch.runCmds(1, ['enable','configure','interface {}'.format(interface),'default shutdown','write memory'])[0]
@@ -78,6 +79,8 @@ def check_and_set_status(switch,status,positive_checks):
 while True:
     try:
         status,positive_checks = check_and_set_status(switch,status,positive_checks)
+#clearing the command request and response history to avoid the history log running the switch out of memory
+        history._instance.clear()
     except socket.error:
         #This socket error occurs during bootup of 7280 and maybe other switches, the /var/run/command-api.sock file seems to disappear temporarily. This exception will keep the program running until the file is back
         sleep(interval)
