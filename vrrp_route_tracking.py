@@ -13,7 +13,7 @@ status = 'green'
 ##Variables to configure##
 routes = [('0.0.0.0/0',4),('::/0',6)]        #route that is being tracked, when this route leaves the routing table the specified interface will be shutdown. This needs to be exactly the same as routing table entry.
 interface = 'Loopback101'    #interface that is being tracked(needs to be the full name that you see under show interface. Example "show int lo100" first line shows "Loopback100")
-interval = 1 #interval in seconds for how frequently the route status is checked. With multiple routes this is the time delay between route checks
+interval = 1 #interval in seconds for how frequently the route status is checked. With multiple routes this is the time delay between route checks.
 
 ###Recovery Interval
 intervals_to_recovery = 10    #how many intervals to wait for the route to be active to no shut the tracked interface, set to 0 to disable. 
