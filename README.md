@@ -11,7 +11,7 @@ Configure and run this script on the switch.
 
 ####All of the config is in the initial variable setting of the script:
 ```
-route = '0.0.0.0/0' #route to monitor
+route = [('0.0.0.0/0',4)] #route or routes to monitor as an array. The route entry in the array is a tuple of address to check + the IP version number of the prefix(4 or 6)
 interface = 'Loopback100' #interface to monitor(needs to be the full interface name you see in show interface status
 interval = 0.1 #interval in seconds for how frequently to check the status
 ```
